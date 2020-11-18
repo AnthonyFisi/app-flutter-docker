@@ -4,7 +4,7 @@
 
 ### Step 1
 
-Clone this porject 
+Clone this example 
 
 ```
 git clone https://github.com/AnthonyFisi/app-flutter-docker.git
