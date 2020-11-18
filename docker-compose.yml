@@ -1,0 +1,51 @@
+version: '3'
+services:
+
+  db:
+    build: .
+    ports:
+      - "5432:5432"
+    environment:
+      # env vars specific to postgres image used on first boot
+      - POSTGRES_USER=${SUPER_USER}
+      - POSTGRES_PASSWORD=${SUPER_USER_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+     
+    volumes:
+      - "./sql-scripts:/docker-entrypoint-initdb.d"
+  ### DB END
+
+  postgrest:
+    image: postgrest/postgrest
+    ports:
+      - "3000:3000"
+    links:
+      - db:db
+    environment:
+      - PGRST_DB_URI=postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - PGRST_DB_SCHEMA=${DB_SCHEMA} 
+      - PGRST_DB_ANON_ROLE=${DB_ANON_ROLE}
+    depends_on:
+      - db
+
+  flutter:
+    image: cirrusci/flutter
+    volumes:
+      - "./workspace:/home"
+    command: >
+        bash -c "flutter doctor
+        && adb devices 
+        && adb connect 192.168.1.10:5556
+        && adb devices 
+        && flutter doctor 
+        && cd home
+        && cd flutter_postgrest
+        && flutter clean
+        && flutter run "
+
+    links:
+      - db:db
+      - postgrest:postgrest
+    depends_on:
+      - postgrest
+ 
