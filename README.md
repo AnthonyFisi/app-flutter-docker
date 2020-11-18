@@ -1,6 +1,6 @@
 # App-flutter-docker
 
-## Exampel
+## Example
 
 ### Step 1
 
